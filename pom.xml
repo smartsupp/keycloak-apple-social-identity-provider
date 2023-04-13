@@ -5,17 +5,21 @@
 >
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>fr.benjaminfavre</groupId>
+    <groupId>org.smartsupp</groupId>
     <artifactId>apple-social-identity-provider</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>18.0.2</version>
     <name>Apple Social Identity Provider</name>
     <description>Apple Social Identity Provider for Keycloak</description>
-    <url>https://github.com/BenjaminFavre/keycloak-apple-social-identity-provider</url>
+    <url>https://github.com/smartsupp/keycloak-apple-social-identity-provider</url>
 
     <developers>
         <developer>
             <name>Benjamin Favre</name>
             <email>benjamin.favre@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Jan Kasztura</name>
+            <email>jk@smartsupp.com</email>
         </developer>
     </developers>
 

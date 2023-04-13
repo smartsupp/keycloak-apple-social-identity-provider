@@ -1,3 +1,9 @@
+# How to raise versions and create build
+1. in pom.xml change keycloak.version to desired keycloak version (valid versions can be seen at https://mvnrepository.com/artifact/org.keycloak/keycloak-core)
+2. run `mvn clean intall`
+3. if build fails, need to modify Java implementation
+4. created lib will be in `target/apple-social-identity-provider-{version}.jar`
+
 # Apple Social Identity Provider for Keycloak
 
 An extension to [Keycloak](https://www.keycloak.org/) that provides support for [Sign in with Apple](https://developer.apple.com/sign-in-with-apple/).
