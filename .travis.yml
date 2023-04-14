@@ -7,10 +7,3 @@ env:
 
 install:
   - mvn clean install
-
-
-deploy:
-  - provider: script
-    script: mvn deploy
-    skip_cleanup: true
-    on: { branch: "master" }
