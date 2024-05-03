@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.smartsupp</groupId>
     <artifactId>apple-social-identity-provider</artifactId>
-    <version>22.0.5</version>
+    <version>23.0.7</version>
     <name>Apple Social Identity Provider</name>
     <description>Apple Social Identity Provider for Keycloak</description>
     <url>https://github.com/smartsupp/keycloak-apple-social-identity-provider</url>
@@ -34,7 +34,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <keycloak.version>22.0.5</keycloak.version>
+        <keycloak.version>23.0.7</keycloak.version>
     </properties>
 
     <build>
