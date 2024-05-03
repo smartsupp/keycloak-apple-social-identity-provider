@@ -4,6 +4,9 @@
 3. if build fails, need to modify Java implementation(fixes are often in https://github.com/BenjaminFavre/keycloak-apple-social-identity-provider/pulls)
 4. created lib will be in `target/apple-social-identity-provider-{version}.jar`
 
+# Releasing
+After merging into `master`, create new [Release](https://github.com/smartsupp/keycloak-apple-social-identity-provider/releases) with correct tag and uploaded .jar file.
+
 # Apple Social Identity Provider for Keycloak
 
 An extension to [Keycloak](https://www.keycloak.org/) that provides support for [Sign in with Apple](https://developer.apple.com/sign-in-with-apple/).
