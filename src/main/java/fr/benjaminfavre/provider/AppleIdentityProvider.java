@@ -6,7 +6,7 @@ import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
 import org.keycloak.broker.oidc.OIDCIdentityProvider;
 import org.keycloak.broker.oidc.OIDCIdentityProviderConfig;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
-import org.keycloak.broker.provider.util.SimpleHttp;
+import org.keycloak.http.simple.SimpleHttpRequest;
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.crypto.Algorithm;
@@ -64,7 +64,7 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
     }
 
     @Override
-    public SimpleHttp authenticateTokenRequest(SimpleHttp tokenRequest) {
+    public SimpleHttpRequest authenticateTokenRequest(SimpleHttpRequest tokenRequest) {
         AppleIdentityProviderConfig config = (AppleIdentityProviderConfig) getConfig();
         tokenRequest.param(OAUTH2_PARAMETER_CLIENT_ID, config.getClientId());
         String base64PrivateKey = config.getClientSecret();
@@ -117,9 +117,10 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
                 @FormParam(AbstractOAuth2IdentityProvider.OAUTH2_PARAMETER_STATE) String state,
                 @FormParam(AbstractOAuth2IdentityProvider.OAUTH2_PARAMETER_CODE) String authorizationCode,
                 @FormParam("user") String userJson,
-                @FormParam(OAuth2Constants.ERROR) String error) {
+                @FormParam(OAuth2Constants.ERROR) String error,
+                @FormParam(OAuth2Constants.ERROR_DESCRIPTION) String errorDescription) {
             AppleIdentityProvider.this.userJson = userJson;
-            return super.authResponse(state, authorizationCode, error);
+            return super.authResponse(state, authorizationCode, error, errorDescription);
         }
     }
 
