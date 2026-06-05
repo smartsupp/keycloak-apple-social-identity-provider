@@ -1,6 +1,6 @@
 dist: focal
 language: java
-jdk: openjdk17
+jdk: openjdk21
 
 env:
   global:
