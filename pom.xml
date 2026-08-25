@@ -47,6 +47,22 @@
                     <skip>false</skip>
                 </configuration>
             </plugin>
+            <!-- Ship META-INF/jandex.idx so the Keycloak/Quarkus build-time scan sees the
+                 JAX-RS endpoint class; without it the @POST auth response is invisible
+                 (Apple form_post callback then 405s on KC 23+). -->
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>3.2.3</version>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <goals>
+                            <goal>jandex</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

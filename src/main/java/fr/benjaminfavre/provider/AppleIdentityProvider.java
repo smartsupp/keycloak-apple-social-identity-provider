@@ -42,7 +42,7 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
 
     @Override
     public Object callback(RealmModel realm, AuthenticationCallback callback, EventBuilder event) {
-        return new OIDCEndpoint(callback, realm, event, this);
+        return new AppleOIDCEndpoint(callback, realm, event, this);
     }
 
     @Override
@@ -103,13 +103,19 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
         return "email name";
     }
 
-    protected class OIDCEndpoint extends OIDCIdentityProvider.OIDCEndpoint {
-        public OIDCEndpoint(
+    // Must be a public static class: Quarkus REST (KC 23+) rejects non-static nested
+    // resource classes, and only registers the @POST method if the class is visible in
+    // the Jandex index shipped with this jar.
+    public static class AppleOIDCEndpoint extends OIDCIdentityProvider.OIDCEndpoint {
+        private final AppleIdentityProvider appleProvider;
+
+        public AppleOIDCEndpoint(
                 AuthenticationCallback callback,
                 RealmModel realm,
                 EventBuilder event,
-                OIDCIdentityProvider provider) {
+                AppleIdentityProvider provider) {
             super(callback, realm, event, provider);
+            this.appleProvider = provider;
         }
 
         @POST
@@ -119,7 +125,7 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
                 @FormParam("user") String userJson,
                 @FormParam(OAuth2Constants.ERROR) String error,
                 @FormParam(OAuth2Constants.ERROR_DESCRIPTION) String errorDescription) {
-            AppleIdentityProvider.this.userJson = userJson;
+            appleProvider.userJson = userJson;
             return super.authResponse(state, authorizationCode, error, errorDescription);
         }
     }
