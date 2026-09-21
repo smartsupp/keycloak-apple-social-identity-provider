@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.smartsupp</groupId>
     <artifactId>apple-social-identity-provider</artifactId>
-    <version>24.0.3</version>
+    <version>26.6.2</version>
     <name>Apple Social Identity Provider</name>
     <description>Apple Social Identity Provider for Keycloak</description>
     <url>https://github.com/smartsupp/keycloak-apple-social-identity-provider</url>
@@ -32,9 +32,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <keycloak.version>24.0.3</keycloak.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <keycloak.version>26.6.2</keycloak.version>
     </properties>
 
     <build>
@@ -46,6 +46,22 @@
                 <configuration>
                     <skip>false</skip>
                 </configuration>
+            </plugin>
+            <!-- Ship META-INF/jandex.idx so the Keycloak/Quarkus build-time scan sees the
+                 JAX-RS endpoint class; without it the @POST auth response is invisible
+                 (Apple form_post callback then 405s on KC 23+). -->
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>3.2.3</version>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <goals>
+                            <goal>jandex</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -6,7 +6,7 @@ import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
 import org.keycloak.broker.oidc.OIDCIdentityProvider;
 import org.keycloak.broker.oidc.OIDCIdentityProviderConfig;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
-import org.keycloak.broker.provider.util.SimpleHttp;
+import org.keycloak.http.simple.SimpleHttpRequest;
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.crypto.Algorithm;
@@ -42,7 +42,7 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
 
     @Override
     public Object callback(RealmModel realm, AuthenticationCallback callback, EventBuilder event) {
-        return new OIDCEndpoint(callback, realm, event, this);
+        return new AppleOIDCEndpoint(callback, realm, event, this);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
     }
 
     @Override
-    public SimpleHttp authenticateTokenRequest(SimpleHttp tokenRequest) {
+    public SimpleHttpRequest authenticateTokenRequest(SimpleHttpRequest tokenRequest) {
         AppleIdentityProviderConfig config = (AppleIdentityProviderConfig) getConfig();
         tokenRequest.param(OAUTH2_PARAMETER_CLIENT_ID, config.getClientId());
         String base64PrivateKey = config.getClientSecret();
@@ -103,13 +103,19 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
         return "email name";
     }
 
-    protected class OIDCEndpoint extends OIDCIdentityProvider.OIDCEndpoint {
-        public OIDCEndpoint(
+    // Must be a public static class: Quarkus REST (KC 23+) rejects non-static nested
+    // resource classes, and only registers the @POST method if the class is visible in
+    // the Jandex index shipped with this jar.
+    public static class AppleOIDCEndpoint extends OIDCIdentityProvider.OIDCEndpoint {
+        private final AppleIdentityProvider appleProvider;
+
+        public AppleOIDCEndpoint(
                 AuthenticationCallback callback,
                 RealmModel realm,
                 EventBuilder event,
-                OIDCIdentityProvider provider) {
+                AppleIdentityProvider provider) {
             super(callback, realm, event, provider);
+            this.appleProvider = provider;
         }
 
         @POST
@@ -117,9 +123,10 @@ public class AppleIdentityProvider extends OIDCIdentityProvider implements Socia
                 @FormParam(AbstractOAuth2IdentityProvider.OAUTH2_PARAMETER_STATE) String state,
                 @FormParam(AbstractOAuth2IdentityProvider.OAUTH2_PARAMETER_CODE) String authorizationCode,
                 @FormParam("user") String userJson,
-                @FormParam(OAuth2Constants.ERROR) String error) {
-            AppleIdentityProvider.this.userJson = userJson;
-            return super.authResponse(state, authorizationCode, error);
+                @FormParam(OAuth2Constants.ERROR) String error,
+                @FormParam(OAuth2Constants.ERROR_DESCRIPTION) String errorDescription) {
+            appleProvider.userJson = userJson;
+            return super.authResponse(state, authorizationCode, error, errorDescription);
         }
     }
 
