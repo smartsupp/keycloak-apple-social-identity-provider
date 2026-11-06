@@ -1,0 +1,74 @@
+# CI for the Apple identity provider jar that smartsupp-keycloak vendors in providers/.
+# Replaces Travis (openjdk21, `mvn clean install`).
+#
+#   build     mvn verify on Temurin 21: compiles and packages the jar with its jandex index
+#             (the repo has no tests)
+#   required  the one check for master's branch protection to require
+#
+# No token and no secret: every dependency and plugin comes from Maven Central, and the repo
+# has no settings.xml. Travis' GITHUB_TOKEN (a PAT) was left over from a `mvn deploy` on
+# master that was removed in 2023; nothing reads it. Nothing is published from here.
+#
+# The repo is public, and pull requests from forks run this workflow with a read-only token.
+# Every job therefore stays on GitHub-hosted runners (free for public repos), never on the
+# self-hosted sms-* pools.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  # A fork's pull request has no push run in this repo; this gives it one. Same-repo pull
+  # requests run twice (push and pull_request), which costs nothing on a public repo.
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # A master run is never cancelled. Other branches and pull requests cancel superseded runs.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Java
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: pom.xml
+      # Travis ran `mvn clean install`. verify runs the same phases up to the jar, without
+      # installing it into the runner's local repository.
+      - name: Build and test
+        run: mvn --batch-mode --show-version verify
+
+  required:
+    # A plain workflow job reports under its own name, so this one carries the name the
+    # estate's node-service and node-library callers report.
+    name: CI / Required
+    if: always()
+    needs: [build]
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    steps:
+      # Skipped jobs count as passed; failed or cancelled ones do not.
+      - name: All jobs passed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<< "$NEEDS"
+          jq -e '[.[].result] | all(. == "success" or . == "skipped")' <<< "$NEEDS" > /dev/null
